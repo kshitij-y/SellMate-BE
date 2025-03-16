@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1742145061222,
+      "tag": "0000_sour_hercules",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1742145446985,
+      "tag": "0001_cold_sharon_carter",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1742145620668,
+      "tag": "0002_icy_marvel_apes",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1742148302075,
+      "tag": "0003_chunky_swarm",
+      "breakpoints": true
+    }
+  ]
+}

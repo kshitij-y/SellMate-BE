@@ -1,0 +1,22 @@
+{
+  "name": "sellmate-be",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.8",
+    "@supabase/postgrest-js": "^1.19.3",
+    "better-auth": "^1.2.4",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.0",
+    "hono": "^4.7.4",
+    "pg": "^8.14.0",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "drizzle-kit": "^0.30.5",
+    "tsx": "^4.19.3"
+  }
+}
