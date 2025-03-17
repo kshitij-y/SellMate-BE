@@ -8,7 +8,7 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
-  usersTable: "user", // Ensure this matches your Drizzle schema
+  usersTable: "user",
   baseUrl: "http://localhost:3000/api/auth/",
   jwtSecret: process.env.JWT_SECRET!,
   emailAndPassword: {
@@ -21,5 +21,5 @@ export const auth = betterAuth({
     },
   },
 
-  trustedOrigins: ["http://localhost:3000", "http://localhost:3001", "*"],
+  trustedOrigins: ["http://localhost:3000", "http://localhost:3001"],
 });

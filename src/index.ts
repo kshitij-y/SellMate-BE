@@ -21,6 +21,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
 });
 
+
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
