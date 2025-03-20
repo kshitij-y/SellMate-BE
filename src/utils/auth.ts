@@ -19,6 +19,7 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      redirectUri: "http://localhost:3000/api/auth/callback/google"
     },
   },
 
