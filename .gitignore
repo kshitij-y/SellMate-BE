@@ -7,7 +7,7 @@
 .idea/workspace.xml
 .idea/usage.statistics.xml
 .idea/shelf
-script.sh
+./script
 # deps
 node_modules/
 Dockerfile

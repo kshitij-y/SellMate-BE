@@ -1,6 +1,11 @@
 import { Hono } from "hono";
 import { sendResponse } from "../utils/response";
-import { addProduct } from "../controllers/userControllers";
+import {
+  addProduct,
+  showMyProducts,
+  deleteProduct,
+  updateProduct,
+} from "../controllers/user.product.Controllers";
 const userRouter = new Hono();
 
 console.log("request came: add Product");
@@ -11,5 +16,8 @@ userRouter.get('/check', async (c) => {
 });
 
 userRouter.post("/addProduct", addProduct);
+userRouter.get("/showMyProducts", showMyProducts);
+userRouter.delete("/deleteProduct", deleteProduct);
+userRouter.put("/updateProduct", updateProduct);
 
 export default userRouter;
