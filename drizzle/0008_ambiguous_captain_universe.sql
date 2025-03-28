@@ -1,0 +1,1 @@
+ALTER TABLE "products" ALTER COLUMN "seller_id" SET DATA TYPE text;

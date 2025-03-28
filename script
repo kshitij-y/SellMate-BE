@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Check if a commit message is provided
+if [ -z "$1" ]; then
+  echo "❌ Error: Please provide a commit message."
+  echo "Usage: ./script \"your commit message\""
+  exit 1
+fi
+
+# Git operations
+echo "🔧 Staging changes..."
+git add .
+
+echo "📦 Committing changes..."
+git commit -m "$1"
+
+# Push to the current branch
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo "🚀 Pushing to the remote repository on branch: $CURRENT_BRANCH..."
+git push origin "$CURRENT_BRANCH"
+
+# Success message
+echo "✅ Changes committed and pushed successfully with message: \"$1\""

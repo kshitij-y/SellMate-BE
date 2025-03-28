@@ -36,6 +36,34 @@
       "when": 1742419684892,
       "tag": "0004_wonderful_unus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1743109062325,
+      "tag": "0005_spotty_triton",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1743120811289,
+      "tag": "0006_complex_champions",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1743121024164,
+      "tag": "0007_chunky_galactus",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1743121420770,
+      "tag": "0008_ambiguous_captain_universe",
+      "breakpoints": true
     }
   ]
 }

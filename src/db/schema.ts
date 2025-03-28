@@ -1,9 +1,13 @@
 import {
   pgTable,
+  uuid,
+  varchar,
   text,
-  integer,
+  json,
+  numeric,
   timestamp,
   boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -61,4 +65,35 @@ export const jwks = pgTable("jwks", {
   privateKey: text("private_key").notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
-export const schema = { user, account, session, verification, jwks };
+
+export const products = pgTable("products", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text(),
+  category: json("category").notNull().default([]),
+  condition: varchar("condition", { length: 20 }).notNull(),
+  images: json("images").notNull().default([]),
+
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  negotiable: boolean("negotiable").default(false),
+  quantity: integer("quantity").notNull().default(1),
+
+  is_auction: boolean("is_auction").default(false),
+  starting_bid: numeric("starting_bid", { precision: 10, scale: 2 }),
+  bid_increment: numeric("bid_increment", { precision: 10, scale: 2 }),
+  auction_end_time: timestamp("auction_end_time", { withTimezone: true }),
+
+  seller_id: text("seller_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
+
+  seller_name: varchar("seller_name", { length: 100 }).notNull(),
+  seller_contact: varchar("seller_contact", { length: 100 }),
+
+  status: varchar("status", { length: 20 }).notNull().default("available"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export const schema = { user, account, session, verification, jwks, products };

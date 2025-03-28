@@ -11,11 +11,13 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
     "hono": "^4.7.4",
+    "nodemailer": "^6.10.0",
     "pg": "^8.14.0",
     "postgres": "^3.4.5"
   },
   "devDependencies": {
-    "@types/node": "^20.11.17",
+    "@types/node": "^20.17.28",
+    "@types/nodemailer": "^6.4.17",
     "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3"
   }

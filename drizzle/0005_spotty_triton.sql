@@ -1,0 +1,21 @@
+CREATE TABLE "products" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"category" json DEFAULT '[]'::json NOT NULL,
+	"condition" varchar(20) NOT NULL,
+	"images" json DEFAULT '[]'::json NOT NULL,
+	"price" numeric(10, 2) NOT NULL,
+	"negotiable" boolean DEFAULT false,
+	"quantity" integer DEFAULT 1 NOT NULL,
+	"is_auction" boolean DEFAULT false,
+	"starting_bid" numeric(10, 2),
+	"bid_increment" numeric(10, 2),
+	"auction_end_time" timestamp with time zone,
+	"seller_id" uuid NOT NULL,
+	"seller_name" varchar(100) NOT NULL,
+	"seller_contact" varchar(100),
+	"status" varchar(20) DEFAULT 'available' NOT NULL,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now()
+);
