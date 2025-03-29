@@ -100,33 +100,10 @@ export const products = pgTable("products", {
 // Orders Table
 export const orders = pgTable("orders", {
   id: uuid("id").primaryKey().defaultRandom(),
-
-  user_id: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
-
-  product_id: uuid("product_id")
-    .notNull()
-    .references(() => products.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-
-  quantity: integer("quantity").notNull().default(1),
+  user_id: uuid("user_id").notNull(),
   total_price: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
-
-  payment_method: varchar("payment_method", { length: 20 })
-    .notNull()
-    .default("COD"),
-  status: varchar("status", { length: 20 }).notNull().default("pending"),
-
-  location: json("location").notNull().default({
-    city: "Unknown",
-    state: "Unknown",
-    zip: "000000",
-    country: "Unknown",
-  }),
-
+  status: varchar("status", { length: 20 }).default("pending"),
+  location: json("location").notNull(),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
 });
@@ -179,7 +156,6 @@ export const reviews = pgTable(
   ]
 );
 
-
 // Order History Table
 export const orderHistory = pgTable("order_history", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -195,6 +171,17 @@ export const orderHistory = pgTable("order_history", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 
+export const payments = pgTable("payments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  order_id: uuid("order_id").notNull(),
+  user_id: uuid("user_id").notNull(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status", { length: 20 }).default("pending"), // "success", "failed", "pending"
+  method: varchar("method", { length: 50 }).notNull(), // "COD", "pseudo", "gateway"
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
 export const schema = {
   user,
   account,
@@ -206,4 +193,5 @@ export const schema = {
   orderItems,
   reviews,
   orderHistory,
+  payments,
 };

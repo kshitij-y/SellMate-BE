@@ -13,11 +13,13 @@
     "hono": "^4.7.4",
     "nodemailer": "^6.10.0",
     "pg": "^8.14.0",
-    "postgres": "^3.4.5"
+    "postgres": "^3.4.5",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.17.28",
     "@types/nodemailer": "^6.4.17",
+    "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3"
   }

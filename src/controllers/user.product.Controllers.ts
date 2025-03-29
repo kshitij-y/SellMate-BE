@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { db } from "../db/index.js";
-import { products } from "../db/schema.js";
+import { products, orders, orderItems, orderHistory } from "../db/schema.js";
 import { sendResponse } from "../utils/response.js";
 import { eq, and } from "drizzle-orm";
 
