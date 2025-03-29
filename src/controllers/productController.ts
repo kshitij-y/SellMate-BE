@@ -7,6 +7,7 @@ import { ilike, like, or, and, sql } from "drizzle-orm";
 
 export const allProducts = async (c: Context) => {
   try {
+    console.log("reqcame for Allproducts")
     const { page = 1, limit = 10 } = c.req.query();
 
     const pageNumber = parseInt(page as string) || 1;
@@ -28,7 +29,7 @@ export const allProducts = async (c: Context) => {
     const totalPages = Math.ceil(Number(totalCount) / pageSize);
 
     return sendResponse(c, 200, true, "Products fetched successfully", {
-      data: result,
+      result,
       currentPage: pageNumber,
       totalPages,
       totalCount,
@@ -41,6 +42,7 @@ export const allProducts = async (c: Context) => {
 
 export const keySearch = async (c: Context) => {
   try {
+    console.log("reqcame for keySearch");
     const query = c.req.query();
     const keyword = query.keyword || "";
     const pageNumber = parseInt(query.page) || 1;
@@ -95,7 +97,7 @@ export const keySearch = async (c: Context) => {
     const totalPages = Math.ceil(Number(totalCount) / pageSize);
 
     return sendResponse(c, 200, true, "Search results fetched successfully", {
-      data: result,
+      result,
       currentPage: pageNumber,
       totalPages,
       totalCount,

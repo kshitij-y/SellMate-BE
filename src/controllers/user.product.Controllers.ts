@@ -32,7 +32,7 @@ export const addProduct = async (c: Context) => {
       auction_end_time,
       seller_contact,
       status,
-    } = body;
+    } = body.product;
 
     if (!title || !condition || !price) {
       return sendResponse(c, 400, false, "Missing required fields");

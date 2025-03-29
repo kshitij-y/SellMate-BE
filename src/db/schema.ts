@@ -9,16 +9,7 @@ import {
   boolean,
   integer,
 } from "drizzle-orm/pg-core";
-
-export const user = pgTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").notNull(),
-  image: text("image"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-});
+import { sql } from "drizzle-orm";
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -66,8 +57,18 @@ export const jwks = pgTable("jwks", {
   createdAt: timestamp("created_at").notNull(),
 });
 
+export const user = pgTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").notNull(),
+  image: text("image"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
 export const products = pgTable("products", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid().primaryKey().defaultRandom(),
 
   title: varchar("title", { length: 255 }).notNull(),
   description: text(),
@@ -96,4 +97,113 @@ export const products = pgTable("products", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 
-export const schema = { user, account, session, verification, jwks, products };
+// Orders Table
+export const orders = pgTable("orders", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  user_id: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
+
+  product_id: uuid("product_id")
+    .notNull()
+    .references(() => products.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+
+  quantity: integer("quantity").notNull().default(1),
+  total_price: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
+
+  payment_method: varchar("payment_method", { length: 20 })
+    .notNull()
+    .default("COD"),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+
+  location: json("location").notNull().default({
+    city: "Unknown",
+    state: "Unknown",
+    zip: "000000",
+    country: "Unknown",
+  }),
+
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Order Items Table
+export const orderItems = pgTable("order_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  order_id: uuid("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade", onUpdate: "cascade" }),
+
+  product_id: uuid("product_id")
+    .notNull()
+    .references(() => products.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+
+  quantity: integer("quantity").notNull().default(1),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  subtotal: numeric("subtotal", { precision: 10, scale: 2 }).notNull(),
+
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Reviews Table
+export const reviews = pgTable(
+  "reviews",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    product_id: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+
+    user_id: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    rating: integer("rating").notNull(),
+    comment: text(),
+
+    created_at: timestamp("created_at").defaultNow(),
+    updated_at: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    sql`CHECK (${table.rating} >= 1 AND ${table.rating} <= 5)`, // Updated to new syntax
+  ]
+);
+
+
+// Order History Table
+export const orderHistory = pgTable("order_history", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  order_id: uuid("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade", onUpdate: "cascade" }),
+
+  status: varchar("status", { length: 20 }).notNull(),
+  changed_at: timestamp("changed_at").defaultNow(),
+
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export const schema = {
+  user,
+  account,
+  session,
+  verification,
+  jwks,
+  products,
+  orders,
+  orderItems,
+  reviews,
+  orderHistory,
+};

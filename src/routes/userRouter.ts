@@ -18,6 +18,6 @@ userRouter.get('/check', async (c) => {
 userRouter.post("/addProduct", addProduct);
 userRouter.get("/showMyProducts", showMyProducts);
 userRouter.delete("/deleteProduct", deleteProduct);
-userRouter.put("/updateProduct", updateProduct);
+userRouter.patch("/updateProduct", updateProduct);
 
 export default userRouter;
