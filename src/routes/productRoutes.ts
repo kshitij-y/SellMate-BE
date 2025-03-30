@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { sendResponse } from "../utils/response";
-import { allProducts, keySearch } from "../controllers/productController";
+import { allProducts, keySearch } from "../controllers/product.public.Controller";
 const productRouter = new Hono();
 
 console.log("request came: Product");

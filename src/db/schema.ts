@@ -181,6 +181,20 @@ export const payments = pgTable("payments", {
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
 });
+export const wishlist = pgTable("wishlist", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  user_id: uuid("user_id").notNull(),
+  product_id: uuid("product_id").notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+});
+export const cart = pgTable("cart", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  user_id: uuid("user_id").notNull(),
+  product_id: uuid("product_id").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
 
 export const schema = {
   user,
@@ -194,4 +208,6 @@ export const schema = {
   reviews,
   orderHistory,
   payments,
+  wishlist,
+  cart,
 };
