@@ -5,6 +5,13 @@ import { schema } from "../db/schema.js";
 import { jwt } from "better-auth/plugins";
 import { sendEmail } from "./mailer.js";
 
+
+const FE_URL = process.env.FE_URL || "http://localhost:3001";
+const BE_URL = process.env.BE_URL || "http://localhost:3000";
+const JWT_SECRET = process.env.JWT_SECRET!;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
+
 export const auth = betterAuth({
   plugins: [jwt()],
   database: drizzleAdapter(db, {
@@ -12,23 +19,23 @@ export const auth = betterAuth({
     schema,
   }),
   usersTable: "user",
-  baseUrl: "http://localhost:3000/api/auth/",
-  jwtSecret: process.env.JWT_SECRET!,
+  baseUrl: `${BE_URL}/api/auth/`,
+  jwtSecret: JWT_SECRET,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
   },
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      redirectUri: "http://localhost:3000/api/auth/callback/google",
+      clientId: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+      redirectUri: `${BE_URL}/api/auth/callback/google`,
     },
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url, token }, request) => {
-      const callbackURL = `http://localhost:3001/dashboard`;
-      const updatedURL = `http://localhost:3000/api/auth/verify-email?token=${token}&callbackURL=${encodeURIComponent(
+      const callbackURL = `${FE_URL}/dashboard`;
+      const updatedURL = `${BE_URL}/api/auth/verify-email?token=${token}&callbackURL=${encodeURIComponent(
         callbackURL
       )}`;
 
@@ -38,8 +45,6 @@ export const auth = betterAuth({
         url: updatedURL,
       });
     },
-
   },
-
-  trustedOrigins: ["http://localhost:3000", "http://localhost:3001"],
+  trustedOrigins: [BE_URL, FE_URL],
 });

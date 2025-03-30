@@ -38,7 +38,7 @@ export const sendEmail = async ({
     from: process.env.SMTP_USER,
     to,
     subject,
-    html: htmlContent, // Use the HTML content here
+    html: htmlContent,
   };
 
   await transporter.sendMail(mailOptions);
