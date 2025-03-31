@@ -7,6 +7,5 @@ import {
 const profileRouter = new Hono();
 
 profileRouter.get("/", getUserProfile);
-profileRouter.put("/update", updateUserProfile);
-
+profileRouter.patch("/update", updateUserProfile);
 export default profileRouter;

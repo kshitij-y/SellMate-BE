@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { sendResponse } from "../utils/response";
 import { db } from "../db";
-import { user } from "../db/schema";
+import { user, addresses } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 export const getUserProfile = async (c: Context) => {
@@ -42,16 +42,16 @@ export const updateUserProfile = async (c: Context) => {
     }
 
     const body = await c.req.json();
-    const { name, email, image } = body;
+    const { name, image } = body;
 
-    if (!name && !email && !image) {
+    if (!name && !image) {
       return sendResponse(c, 400, false, "No fields provided for update");
     }
 
     const updatedFields = {
       ...(name && { name }),
-      ...(email && { email }),
       ...(image && { image }),
+      updatedAt: new Date(),
     };
 
     await db.update(user).set(updatedFields).where(eq(user.id, userData.id));

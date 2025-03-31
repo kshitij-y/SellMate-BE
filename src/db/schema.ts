@@ -195,7 +195,20 @@ export const cart = pgTable("cart", {
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
 });
-
+export const addresses = pgTable("addresses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  user_id: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  country: varchar("country", { length: 100 }).notNull(),
+  state: varchar("state", { length: 100 }),
+  city: varchar("city", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  postal_code: varchar("postal_code", { length: 20 }),
+  address: varchar("address", { length: 255 }).notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
 export const schema = {
   user,
   account,
@@ -210,4 +223,5 @@ export const schema = {
   payments,
   wishlist,
   cart,
+  addresses,
 };
