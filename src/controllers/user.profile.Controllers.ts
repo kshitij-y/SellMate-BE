@@ -54,9 +54,9 @@ export const updateUserProfile = async (c: Context) => {
       updatedAt: new Date(),
     };
 
-    await db.update(user).set(updatedFields).where(eq(user.id, userData.id));
+    const result = await db.update(user).set(updatedFields).where(eq(user.id, userData.id)).returning();
 
-    return sendResponse(c, 200, true, "User profile updated successfully");
+    return sendResponse(c, 200, true, "User profile updated successfully", result[0]);
   } catch (error) {
     console.error("Error updating user profile:", error);
     return sendResponse(c, 500, false, "Failed to update user profile");

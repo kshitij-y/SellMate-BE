@@ -12,35 +12,33 @@ export const addToCart = async (c: Context) => {
     }
 
     const user_id = user.id;
-    const body = await c.req.json();
-    const { product_id, quantity } = body;
+    const { product_id, title, price, quantity, image } = await c.req.json();
 
-    if (!product_id || !quantity || quantity < 1) {
-      return sendResponse(c, 400, false, "Invalid product or quantity");
-    }
-
-    const existingCartItem = await db
+    const existingItem = await db
       .select()
       .from(cart)
       .where(and(eq(cart.user_id, user_id), eq(cart.product_id, product_id)))
       .limit(1);
 
-    if (existingCartItem.length > 0) {
+    if (existingItem.length > 0) {
       await db
         .update(cart)
-        .set({ quantity: existingCartItem[0].quantity + quantity })
-        .where(and(eq(cart.user_id, user_id), eq(cart.product_id, product_id)));
+        .set({ quantity: existingItem[0].quantity + quantity })
+        .where(eq(cart.id, existingItem[0].id));
 
-      return sendResponse(c, 200, true, "Cart updated successfully");
+      return sendResponse(c, 200, true, "Cart quantity updated successfully");
     }
 
-    await db.insert(cart).values({
+    const result = await db.insert(cart).values({
       user_id,
       product_id,
+      title,
+      price,
       quantity,
+      image,
     });
 
-    return sendResponse(c, 201, true, "Product added to cart successfully");
+    return sendResponse(c, 201, true, "Product added to cart successfully", result);
   } catch (error) {
     console.error("Error adding to cart:", error);
     return sendResponse(c, 500, false, "Failed to add product to cart");
@@ -56,10 +54,20 @@ export const removeFromCart = async (c: Context) => {
 
     const user_id = user.id;
     const body = await c.req.json();
-    const { product_id } = body;
+    const { product_id }: { product_id: string } = body;
 
     if (!product_id) {
       return sendResponse(c, 400, false, "Product ID is required");
+    }
+
+    const cartItem = await db
+      .select()
+      .from(cart)
+      .where(and(eq(cart.user_id, user_id), eq(cart.product_id, product_id)))
+      .limit(1);
+
+    if (cartItem.length === 0) {
+      return sendResponse(c, 404, false, "Product not found in cart");
     }
 
     await db
@@ -82,12 +90,16 @@ export const getCart = async (c: Context) => {
 
     const user_id = user.id;
 
-    const cartItems = await db
+    const cartItem = await db
       .select()
       .from(cart)
       .where(eq(cart.user_id, user_id));
+    if (cartItem.length === 0) {
+      return sendResponse(c, 200, true, "Cart not found");
+    }
 
-    return sendResponse(c, 200, true, "Cart retrieved successfully", cartItems);
+    
+    return sendResponse(c, 200, true, "Cart retrieved successfully", cartItem);
   } catch (error) {
     console.error("Error fetching cart:", error);
     return sendResponse(c, 500, false, "Failed to fetch cart");
@@ -102,19 +114,23 @@ export const updateCartQuantity = async (c: Context) => {
     }
 
     const user_id = user.id;
-    const body = await c.req.json();
-    const { product_id, quantity } = body;
+    const { product_id, quantity } = await c.req.json();
 
-    if (!product_id || !quantity || quantity < 1) {
-      return sendResponse(c, 400, false, "Invalid product or quantity");
+    if (quantity < 1) {
+      return sendResponse(c, 400, false, "Quantity must be at least 1");
     }
 
-    await db
+    const updatedItem = await db
       .update(cart)
       .set({ quantity })
-      .where(and(eq(cart.user_id, user_id), eq(cart.product_id, product_id)));
+      .where(and(eq(cart.user_id, user_id), eq(cart.product_id, product_id)))
+      .returning();
 
-    return sendResponse(c, 200, true, "Cart quantity updated successfully");
+    if (updatedItem.length === 0) {
+      return sendResponse(c, 404, false, "Item not found in cart");
+    }
+
+    return sendResponse(c, 200, true, "Cart quantity updated", updatedItem);
   } catch (error) {
     console.error("Error updating cart quantity:", error);
     return sendResponse(c, 500, false, "Failed to update cart quantity");

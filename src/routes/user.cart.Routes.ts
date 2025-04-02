@@ -5,7 +5,7 @@ const cartRouter = new Hono();
 
 cartRouter.get("/getCart", getCart);
 cartRouter.post("/addToCart", addToCart);
-cartRouter.put("/updateCartQuantity", updateCartQuantity);
+cartRouter.patch("/updateCartQuantity", updateCartQuantity);
 cartRouter.delete("/removeFromCart", removeFromCart);
 
 export default cartRouter;

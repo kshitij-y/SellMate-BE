@@ -12,6 +12,13 @@ import { sendResponse } from './utils/response.js';
 
 
 const app = new Hono();
+app.use("*", async (c, next) => {
+  const method = c.req.method; 
+  const url = c.req.url;
+  console.log(`[${new Date().toISOString()}] ${method} request to ${url}`);
+  await next();
+});
+
 app.use(
   cors({
     origin: "http://localhost:3001",

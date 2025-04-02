@@ -8,6 +8,7 @@ import {
   timestamp,
   boolean,
   integer,
+  jsonb
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -97,7 +98,7 @@ export const products = pgTable("products", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 
-// Orders Table
+
 export const orders = pgTable("orders", {
   id: uuid("id").primaryKey().defaultRandom(),
   user_id: uuid("user_id").notNull(),
@@ -108,7 +109,7 @@ export const orders = pgTable("orders", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 
-// Order Items Table
+
 export const orderItems = pgTable("order_items", {
   id: uuid("id").primaryKey().defaultRandom(),
 
@@ -131,7 +132,7 @@ export const orderItems = pgTable("order_items", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 
-// Reviews Table
+
 export const reviews = pgTable(
   "reviews",
   {
@@ -156,7 +157,6 @@ export const reviews = pgTable(
   ]
 );
 
-// Order History Table
 export const orderHistory = pgTable("order_history", {
   id: uuid("id").primaryKey().defaultRandom(),
 
@@ -182,19 +182,35 @@ export const payments = pgTable("payments", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 export const wishlist = pgTable("wishlist", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  user_id: uuid("user_id").notNull(),
-  product_id: uuid("product_id").notNull(),
-  created_at: timestamp("created_at").defaultNow(),
+  id: uuid("id").defaultRandom().primaryKey(),
+  user_id: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  product_id: uuid("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  image: varchar("image", { length: 255 }).notNull(),
 });
+
+
 export const cart = pgTable("cart", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  user_id: uuid("user_id").notNull(),
-  product_id: uuid("product_id").notNull(),
+  id: uuid("id").defaultRandom().primaryKey(),
+  user_id: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  product_id: uuid("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   quantity: integer("quantity").notNull().default(1),
-  created_at: timestamp("created_at").defaultNow(),
-  updated_at: timestamp("updated_at").defaultNow(),
+  image: varchar("image", { length: 255 }).notNull(),
 });
+
+
+
 export const addresses = pgTable("addresses", {
   id: uuid("id").primaryKey().defaultRandom(),
   user_id: text("user_id")

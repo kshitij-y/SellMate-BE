@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { db } from "../db/index.js";
 import { products } from "../db/schema.js";
 import { sendResponse } from "../utils/response.js";
-import { ilike, like, or, and, sql } from "drizzle-orm";
+import { ilike, like, or, and, sql, eq } from "drizzle-orm";
 
 
 export const allProducts = async (c: Context) => {
@@ -105,5 +105,28 @@ export const keySearch = async (c: Context) => {
   } catch (error) {
     console.error("Error in key search:", error);
     return sendResponse(c, 500, false, "Failed to fetch search results");
+  }
+};
+export const getById = async (c: Context) => {
+  try {
+    const { id } = c.req.param();
+
+    if (!id) {
+      return sendResponse(c, 400, false, "Product ID is required.");
+    }
+
+    const product = await db
+      .select()
+      .from(products)
+      .where(eq(products.id, id));
+
+    if (product.length > 0) {
+      return sendResponse(c, 200, true, "Found the Product", product[0]);
+    } else {
+      return sendResponse(c, 404, false, "Product not found");
+    }
+  } catch (error) {
+    console.error("Error in getById:", error);
+    return sendResponse(c, 500, false, "Failed to fetch product.");
   }
 };

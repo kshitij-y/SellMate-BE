@@ -119,12 +119,12 @@ export const updateAddress = async (c: Context) => {
     }
 
     if (Object.keys(updateFields).length > 0) {
-      await db
+      const result = await db
         .update(addresses)
         .set(updateFields)
         .where(eq(addresses.user_id, user_id));
 
-      return sendResponse(c, 200, true, "Address updated successfully");
+      return sendResponse(c, 200, true, "Address updated successfully", result);
     }
 
     return sendResponse(c, 400, false, "No valid fields provided for update");
