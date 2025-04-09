@@ -98,7 +98,6 @@ export const getOrderHistoryById = async (c: Context) => {
   }
 };
 
-
 export const placeOrder = async (c: Context) => {
   try {
     const user = c.get("user");
@@ -106,108 +105,92 @@ export const placeOrder = async (c: Context) => {
       return sendResponse(c, 401, false, "Unauthorized: User not found");
     }
 
-    const body = await c.req.json();
-    const { products: cartProducts, location } = body;
+    const { cartItems, location } = await c.req.json();
 
-    if (!cartProducts || cartProducts.length === 0) {
-      return sendResponse(c, 400, false, "No products provided");
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      return sendResponse(c, 400, false, "Cart is empty");
     }
 
     const orderId = uuidv4();
-    const totalAmount = cartProducts.reduce(
-      (sum: number, item: any) => sum + item.price * item.quantity,
-      0
-    );
+    let totalAmount = 0;
 
+    for (const item of cartItems) {
+      const [product] = await db
+        .select()
+        .from(products)
+        .where(eq(products.id, item.product_id))
+        .limit(1);
+
+      if (!product) {
+        return sendResponse(c, 404, false, `Product with ID ${item.product_id} not found`);
+      }
+
+      if (product.quantity < item.quantity) {
+        return sendResponse(c, 400, false, `Insufficient stock for product ${item.product_id}`);
+      }
+
+      totalAmount += Number(product.price) * Number(item.quantity);
+    }
+
+    // Simulate Payment Success (98% Success Rate)
     const paymentSuccess = Math.random() < 0.98;
     const status = paymentSuccess ? "confirmed" : "failed";
 
-    await db.insert(orders).values({
-      id: orderId,
-      user_id: user.id,
-      total_price: totalAmount,
-      location: location,
-      status: status,
-    });
-
-    if (!paymentSuccess) {
-      await db.insert(orderHistory).values({
-        id: uuidv4(),
-        order_id: orderId,
-        status: "failed",
-        changed_at: new Date(),
+    // Begin Transaction
+    await db.transaction(async (trx) => {
+      // Insert Order
+      await trx.insert(orders).values({
+        id: orderId,
+        user_id: user.id,
+        total_price: String(totalAmount),
+        location,
+        status,
       });
 
-      return sendResponse(
-        c,
-        402,
-        false,
-        "Payment failed, order not processed",
-        {
-          orderId,
-        }
-      );
-    }
+      if (!paymentSuccess) {
+        await trx.insert(orderHistory).values({
+          id: uuidv4(),
+          order_id: orderId,
+          status: "failed",
+          changed_at: new Date(),
+        });
 
-    
-    const orderItemData = cartProducts.map((item: any) => ({
-      id: uuidv4(),
-      order_id: orderId,
-      product_id: item.id,
-      quantity: item.quantity,
-      price: item.price,
-      subtotal: item.price * item.quantity,
-    }));
-
-    await db.insert(orderItems).values(orderItemData);
-
-    
-    for (const item of cartProducts) {
-      const product = await db
-        .select()
-        .from(products)
-        .where(eq(products.id, item.id))
-        .limit(1);
-
-      if (!product.length) {
-        return sendResponse(
-          c,
-          404,
-          false,
-          `Product with ID ${item.id} not found`
-        );
+        throw new Error("Payment failed, order not processed");
       }
 
-      const newQuantity = product[0].quantity - item.quantity;
+      // Insert Order Items
+      const orderItemsData = cartItems.map((item) => ({
+        id: uuidv4(),
+        order_id: orderId,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: String(item.price),
+        subtotal: String(item.price * item.quantity),
+      }));
 
-      if (newQuantity < 0) {
-        return sendResponse(
-          c,
-          400,
-          false,
-          `Insufficient stock for product ${item.id}`
-        );
+      await trx.insert(orderItems).values(orderItemsData);
+
+      // Update Product Stock
+      for (const item of cartItems) {
+        await trx
+          .update(products)
+          .set({ quantity: Number(products.quantity) - item.quantity })
+          .where(eq(products.id, item.product_id));
       }
 
-      await db
-        .update(products)
-        .set({ quantity: newQuantity })
-        .where(eq(products.id, item.id));
-    }
-
-    
-    await db.insert(orderHistory).values({
-      id: uuidv4(),
-      order_id: orderId,
-      status: "confirmed",
-      changed_at: new Date(),
+      // Add Order History
+      await trx.insert(orderHistory).values({
+        id: uuidv4(),
+        order_id: orderId,
+        status: "confirmed",
+        changed_at: new Date(),
+      });
     });
 
-    return sendResponse(c, 201, true, "Order placed successfully", {
-      orderId,
-    });
-  } catch (error) {
+    return sendResponse(c, 201, true, "Order placed successfully", { orderId });
+  } catch (error: any) {
     console.error("Error placing order:", error);
-    return sendResponse(c, 500, false, "Failed to place order");
+    return sendResponse(c, 500, false, error.message || "Failed to place order");
   }
+
 };

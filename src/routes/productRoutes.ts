@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { sendResponse } from "../utils/response";
-import { allProducts, getById, keySearch } from "../controllers/product.public.Controller";
+import { allProducts, getById, getTopSellingProducts, keySearch } from "../controllers/product.public.Controller";
 const productRouter = new Hono();
 
 console.log("request came: Product");
@@ -12,5 +12,6 @@ productRouter.get("/check", async (c) => {
 productRouter.get("/allProducts", allProducts);
 productRouter.get("/keySearch", keySearch);
 productRouter.get("/byId/:id", getById);
+productRouter.get("getTopSelling", getTopSellingProducts);
 
 export default productRouter;

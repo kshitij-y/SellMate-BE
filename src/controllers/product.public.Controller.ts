@@ -1,13 +1,13 @@
 import { Context } from "hono";
 import { db } from "../db/index.js";
-import { products } from "../db/schema.js";
+import { products, orderItems } from "../db/schema.js";
 import { sendResponse } from "../utils/response.js";
-import { ilike, like, or, and, sql, eq } from "drizzle-orm";
-
+import { ilike, like, or, and, sql, eq, desc, sum } from "drizzle-orm";
+import { title } from "process";
 
 export const allProducts = async (c: Context) => {
   try {
-    console.log("reqcame for Allproducts")
+    console.log("reqcame for Allproducts");
     const { page = 1, limit = 10 } = c.req.query();
 
     const pageNumber = parseInt(page as string) || 1;
@@ -115,10 +115,7 @@ export const getById = async (c: Context) => {
       return sendResponse(c, 400, false, "Product ID is required.");
     }
 
-    const product = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, id));
+    const product = await db.select().from(products).where(eq(products.id, id));
 
     if (product.length > 0) {
       return sendResponse(c, 200, true, "Found the Product", product[0]);
@@ -128,5 +125,42 @@ export const getById = async (c: Context) => {
   } catch (error) {
     console.error("Error in getById:", error);
     return sendResponse(c, 500, false, "Failed to fetch product.");
+  }
+};
+
+export const getTopSellingProducts = async (c: Context) => {
+  try {
+    const topProducts = await db
+      .select({
+        product_id: orderItems.product_id,
+        title: products.title,
+        image: sql`(products.images->>0)`.as("image"),
+        price: products.price,
+      })
+      .from(orderItems)
+      .innerJoin(products, eq(orderItems.product_id, products.id))
+      .groupBy(
+        orderItems.product_id,
+        products.title,
+        products.images,
+        products.price
+      )
+      .orderBy(desc(sum(orderItems.quantity)))
+      .limit(10);
+
+    if (topProducts.length === 0) {
+      return sendResponse(c, 200, true, "No top selling items found", []);
+    }
+
+    return sendResponse(c, 200, true, "Top selling items", topProducts);
+  } catch (error) {
+    return sendResponse(
+      c,
+      500,
+      false,
+      "Failed to fetch top selling products",
+      null,
+      error
+    );
   }
 };

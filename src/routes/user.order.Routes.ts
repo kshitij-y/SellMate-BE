@@ -12,6 +12,6 @@ const ordersRouter = new Hono();
 ordersRouter.get("/", getUserOrders);
 ordersRouter.get("/:id", getOrderById);
 ordersRouter.get("/history/:id", getOrderHistoryById);
-ordersRouter.post("/", placeOrder);
+ordersRouter.post("/placeOrder", placeOrder);
 
 export default ordersRouter;
